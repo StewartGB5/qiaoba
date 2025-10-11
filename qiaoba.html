@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Glint Blog — Lightweight Single File</title>
+  <meta name="description" content="A random, runnable single-file blog template. Open this file in a browser to run." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#071026;
+      --card:#0f1724;
+      --text:#eaf6ff;
+      --muted:#9fb2c8;
+      --accent1:#7c5cff;
+      --accent2:#06b6d4;
+      --glass: rgba(255,255,255,0.04);
+      --radius:12px;
+      --maxw:1100px;
+    }
+    :root[data-theme="light"]{
+      --bg:#f6fafc;
+      --card:#ffffff;
+      --text:#0b1220;
+      --muted:#58616b;
+      --glass: rgba(10,10,10,0.02);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;color:var(--text);background:linear-gradient(180deg,var(--bg),#031023);-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    .wrap{width:min(var(--maxw),94%);margin:36px auto;padding-bottom:60px}
+
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:grid;place-items:center;font-weight:800;font-family:Playfair Display;color:white}
+    .brand h1{margin:0;font-size:20px}
+    .brand p{margin:0;font-size:12px;color:var(--muted)}
+
+    nav{display:flex;gap:12px;align-items:center}
+    .nav-link{padding:8px 12px;border-radius:10px;color:var(--muted);font-weight:600}
+    .nav-link:hover{background:var(--glass);color:var(--text)}
+
+    .actions{display:flex;gap:8px;align-items:center}
+    .btn{border:0;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    .btn-primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;box-shadow:0 8px 30px rgba(10,10,30,0.45)}
+
+    main{display:grid;grid-template-columns:1fr 320px;gap:28px}
+    .hero{padding:20px;border-radius:var(--radius);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
+    .hero h2{font-family:Playfair Display,serif;margin:0 0 8px}
+    .hero p{margin:0;color:var(--muted)}
+
+    .posts{margin-top:16px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .post{background:var(--card);border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);transition:transform .18s ease,box-shadow .18s ease;cursor:pointer}
+    .post:hover{transform:translateY(-6px);box-shadow:0 18px 50px rgba(2,6,23,0.5)}
+    .post-thumb{height:150px;background-size:cover;background-position:center}
+    .post-body{padding:14px}
+    .post-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+    .post-title{margin:8px 0 6px;font-size:18px;font-weight:700;color:var(--text)}
+    .post-excerpt{margin:0;color:var(--muted);font-size:14px}
+
+    aside{position:relative}
+    .side-card{padding:14px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
+    .search{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+    .search input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text)}
+    .tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .tag{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:13px;color:var(--muted);cursor:pointer}
+    .tag.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white}
+
+    footer{grid-column:1/-1;margin-top:24px;color:var(--muted);text-align:center}
+
+    .modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,0.6);z-index:9999;padding:18px}
+    .article{width:min(980px,96%);max-height:92vh;overflow:auto;background:var(--card);border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .article-hero{height:320px;background-size:cover;background-position:center;border-top-left-radius:12px;border-top-right-radius:12px}
+    .article-body{padding:20px;color:var(--muted)}
+    .article-body h1{font-family:Playfair Display,serif;color:var(--text)}
+    .article-body p{line-height:1.7}
+    .close-x{position:absolute;top:18px;right:18px;background:transparent;border:0;color:white;font-size:20px;cursor:pointer}
+
+    @media (max-width:980px){
+      main{grid-template-columns:1fr}
+      .posts{grid-template-columns:1fr}
+      aside{order:2}
+    }
+
+    .fade{opacity:0;transform:translateY(8px);transition:opacity .6s ease, transform .6s cubic-bezier(.2,.9,.3,1)}
+    .fade.show{opacity:1;transform:none}
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <header>
+      <div class="brand">
+        <div class="logo">G</div>
+        <div>
+          <h1>Glint Blog</h1>
+          <p>short reads and experiments</p>
+        </div>
+      </div>
+
+      <nav>
+        <a class="nav-link" href="#">Home</a>
+        <a class="nav-link" href="#">Articles</a>
+        <a class="nav-link" href="#">About</a>
+        <a class="nav-link" href="#">Contact</a>
+      </nav>
+
+      <div class="actions">
+        <button class="btn btn-ghost" id="themeToggle" title="Toggle theme">🌗</button>
+        <button class="btn btn-primary" onclick="newPost()">New</button>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="hero fade show">
+          <h2>Readable layouts. Fast delivery.</h2>
+          <p>Open this file in a browser. Click a post to preview the article. All code runs locally—no server required.</p>
+
+          <div class="posts" id="posts"></div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="side-card fade show">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <strong>Search & Tags</strong>
+            <small style="color:var(--muted)">filters</small>
+          </div>
+
+          <div class="search">
+            <input id="q" placeholder="Search posts..." oninput="renderPosts()" />
+            <button class="btn btn-ghost" onclick="document.getElementById('q').value='';renderPosts()">✕</button>
+          </div>
+
+          <div style="margin-top:6px">
+            <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Tags</div>
+            <div class="tag-list" id="tagList"></div>
+          </div>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="side-card fade show">
+          <div style="font-weight:700;margin-bottom:8px">About</div>
+          <div style="color:var(--muted);font-size:14px">
+            Glint Blog is a tiny demo template. Customize, extend, or connect to a CMS as you like.
+          </div>
+        </div>
+      </aside>
+
+      <footer>
+        © <span id="year"></span> Glint Blog · Demo
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // sample data
+    const POSTS = [
+      { id:1, title:"Micro-Interactions That Matter", excerpt:"Small motions can guide attention and improve usability.", img:"https://source.unsplash.com/1000x600/?motion,ui", tags:["design","ux"], date:"2025-01-15" },
+      { id:2, title:"Shipping Small Features Often", excerpt:"A practical approach to continuous delivery for small teams.", img:"https://source.unsplash.com/1000x600/?deploy,code", tags:["engineering","process"], date:"2025-05-02" },
+      { id:3, title:"Typography for Calm Reading", excerpt:"Type choices that reduce noise and enhance comprehension.", img:"https://source.unsplash.com/1000x600/?typography,books", tags:["design","writing"], date:"2024-11-03" },
+      { id:4, title:"State Made Simple", excerpt:"Techniques for predictable and testable state management.", img:"https://source.unsplash.com/1000x600/?code,notebook", tags:["engineering","patterns"], date:"2025-07-21" },
+      { id:5, title:"Notes From a Short Walk", excerpt:"Walking fast ideas into a notebook to capture clarity.", img:"https://source.unsplash.com/1000x600/?walk,nature", tags:["journal","life"], date:"2024-09-10" }
+    ];
+
+    // initialization
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const state = { posts: POSTS.slice(), activeTag: null };
+
+    function buildTags(){
+      const set = new Set();
+      POSTS.forEach(p => p.tags.forEach(t => set.add(t)));
+      const tags = Array.from(set).sort();
+      const container = document.getElementById('tagList');
+      container.innerHTML = '';
+      tags.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'tag';
+        el.textContent = t;
+        el.onclick = () => { toggleTag(t); };
+        container.appendChild(el);
+      });
+      updateTagUI();
+    }
+
+    function toggleTag(t){
+      state.activeTag = state.activeTag === t ? null : t;
+      updateTagUI();
+      renderPosts();
+    }
+    function updateTagUI(){
+      document.querySelectorAll('#tagList .tag').forEach(n => n.classList.toggle('active', n.textContent === state.activeTag));
+    }
+
+    function renderPosts(){
+      const q = (document.getElementById('q').value || '').trim().toLowerCase();
+      const list = document.getElementById('posts');
+      list.innerHTML = '';
+      let filtered = state.posts.filter(p => {
+        const matchesTag = state.activeTag ? p.tags.includes(state.activeTag) : true;
+        const matchesQ = q ? (p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q) || p.tags.join(' ').includes(q)) : true;
+        return matchesTag && matchesQ;
+      });
+
+      if(!filtered.length){
+        list.innerHTML = '<div style="padding:18px;color:var(--muted);background:var(--card);border-radius:10px">No posts found.</div>';
+        return;
+      }
+
+      filtered = shuffle(filtered);
+      filtered.forEach(p => {
+        const el = document.createElement('article');
+        el.className = 'post fade show';
+        el.innerHTML = `
+          <div class="post-thumb" style="background-image:url('${p.img}');"></div>
+          <div class="post-body">
+            <div class="post-meta"><time datetime="${p.date}">${new Date(p.date).toLocaleDateString()}</time><span style="margin-left:auto">${p.tags.map(t=>`<small style="color:var(--muted);font-weight:700;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);margin-left:6px">${t}</small>`).join('')}</span></div>
+            <h3 class="post-title">${p.title}</h3>
+            <p class="post-excerpt">${p.excerpt}</p>
+          </div>
+        `;
+        el.onclick = () => openArticle(p);
+        list.appendChild(el);
+      });
+    }
+
+    function shuffle(arr){ return arr.slice().sort(()=>Math.random() - 0.5); }
+
+    // Open article modal. The article body contains a {{content}} placeholder for integration.
+    function openArticle(post){
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="article" role="dialog" aria-modal="true" aria-label="${escapeHtml(post.title)}">
+          <div class="article-hero" style="background-image:url('${post.img}');"></div>
+          <div class="article-body">
+            <h1>${post.title}</h1>
+            <div style="color:var(--muted);margin-bottom:12px">${new Date(post.date).toLocaleDateString()} • ${post.tags.join(', ')}</div>
+
+            <!-- Replace {{content}} with your article HTML when integrating -->
+            <div class="article-content">
+              {{content}}
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:18px">
+              <button class="btn btn-primary" onclick="closeModal(this)">Close</button>
+              <button class="btn btn-ghost" onclick="closeModal(this)">Continue</button>
+            </div>
+          </div>
+        </div>
+        <button class="close-x" onclick="closeModal(this)" aria-label="Close">✕</button>
+      `;
+      document.body.appendChild(modal);
+      function esc(e){ if(e.key === 'Escape'){ close(); } }
+      function close(){ window.removeEventListener('keydown', esc); if(modal && modal.parentNode) modal.parentNode.removeChild(modal); }
+      modal.querySelectorAll('.close-x, .btn-ghost, .btn-primary').forEach(b => b.addEventListener('click', close));
+      window.addEventListener('keydown', esc);
+    }
+
+    function closeModal(el){ const modal = el.closest('.modal'); if(modal && modal.parentNode) modal.parentNode.removeChild(modal); }
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    // Theme toggle
+    const root = document.documentElement;
+    const saved = localStorage.getItem('glint-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:light)').matches ? 'light' : 'dark');
+    root.setAttribute('data-theme', saved === 'light' ? 'light' : 'dark');
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const cur = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      const next = cur === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('glint-theme', next);
+    });
+
+    // New post placeholder
+    function newPost(){ alert('This demo is static. Connect to a CMS to create new posts.'); }
+
+    // progressive reveal
+    window.addEventListener('load', ()=> {
+      document.querySelectorAll('.fade').forEach((el,i)=> setTimeout(()=>el.classList.add('show'), 80*i));
+    });
+
+    // start
+    buildTags();
+    renderPosts();
+  </script>
+</body>
+</html>
